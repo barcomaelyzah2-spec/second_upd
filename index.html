@@ -166,7 +166,7 @@
                 {n:'Frog', s:'Ribbit', e:'🐸'}, {n:'Bee', s:'Buzzzz', e:'🐝'},
                 {n:'Bird', s:'Tweet tweet', e:'🐦'}, {n:'Cat', s:'Meow', e:'🐱'},
                 {n:'Duck', s:'Quack', e:'🦆'}, {n:'Pig', s:'Oink', e:'🐷'},
-                {n:'Dog', s:'Woof', e:'🐶'}, {n:'Goat', s:'Mheee', e:'🐐'},
+                {n:'Dog', s:'Woof', e:'🐶'}, {n:'Goat', s:'Maaa', e:'🐐'},
                 
             ];
             let pick = animals[Math.floor(Math.random() * animals.length)];
@@ -191,4 +191,217 @@
 
         // --- FRUIT COLOR GAME ---
         else if (state.currentGame === 'color') {
-            const fruits =
+            const fruits = [
+                {n:'Apple', v:'#ff4d4d', e:'🍎', c:'Red'}, 
+                {n:'Blueberries', v:'#2e86de', e:'🫐', c:'Blue'}, 
+                {n:'Watermelon', v:'#2ecc71', e:'🍉', c:'Green'}, 
+                {n:'Banana', v:'#f1c40f', e:'🍌', c:'Yellow'}, 
+                {n:'Peach', v:'#ff9ff3', e:'🍑', c:'Pink'}, 
+                {n:'Orange', v:'#ff9f43', e:'🍊', c:'Orange'},
+                {n:'Grapes', v:'#9b59b6', e:'🍇', c:'Purple'}
+            ];
+            let pick = fruits[Math.floor(Math.random()*fruits.length)];
+            state.correctAnswer = pick.n;
+            q.innerHTML = `Find the <span style="color:${pick.v}">${pick.c.toUpperCase()}</span> fruit!`;
+            speak(`Find the ${pick.c} fruit!`);
+            
+            let choices = [...fruits].sort(() => 0.5 - Math.random()).slice(0,4);
+            if (!choices.find(f => f.n === pick.n)) choices[0] = pick;
+
+            choices.sort(() => 0.5 - Math.random()).forEach(f => {
+                area.innerHTML += `
+                    <div class="fruit-card" onclick="handleResult('${f.n}'==='${pick.n}')">
+                        <div class="fruit-bubble" style="background:${f.v};">${f.e}</div>
+                        <div class="fruit-name">${f.n}</div>
+                    </div>`;
+            });
+        }
+
+        // --- MEMORY GAME ---
+        else if (state.currentGame === 'memory') {
+            q.innerText = "Match the Pairs!";
+            speak("Match the pairs!");
+            const pool = ['🐶','🍎','⭐','🤖','🐸','🎈','🍭','🦁'];
+            const selectedIcons = pool.sort(() => 0.5 - Math.random()).slice(0, 4);
+            const icons = [...selectedIcons, ...selectedIcons].sort(() => 0.5 - Math.random());
+            
+            let grid = `<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:400px; margin:auto;">`;
+            icons.forEach((icon, i) => {
+                grid += `<div id="c${i}" onclick="flip(${i},'${icon}')" style="background:var(--primary); height:80px; border-radius:15px; cursor:pointer; font-size:40px; display:flex; align-items:center; justify-content:center; color:transparent; transition: 0.3s; box-shadow: 0 4px 0 #4834D4;">${icon}</div>`;
+            });
+            area.innerHTML = grid + `</div>`;
+        }
+
+        // --- SHAPE GAME ---
+        else if (state.currentGame === 'shape') {
+            const shapes = [{n:'Circle', c:'s-circle'}, {n:'Square', c:'s-square'}, {n:'Triangle', c:'s-triangle'}, {n:'Diamond', c:'s-diamond'}, {n:'Rectangle', c:'s-rectangle'}, {n:'Oval', c:'s-oval'}, {n:'Pentagon', c:'s-pentagon'}];
+            let pick = shapes[Math.floor(Math.random() * shapes.length)];
+            state.correctAnswer = pick.n;
+            q.innerText = `Can you find the ${pick.n.toUpperCase()}?`;
+            speak(`Can you find the ${pick.n}?`);
+            
+            let choices = [...shapes].sort(() => 0.5 - Math.random()).slice(0, 4);
+            if (!choices.find(s => s.n === pick.n)) choices[0] = pick;
+            let html = `<div class="shape-container">`;
+            choices.sort(() => 0.5 - Math.random()).forEach(s => { html += `<div class="shape ${s.c}" onclick="handleResult('${s.n}'==='${pick.n}')"></div>`; });
+            area.innerHTML = html + `</div>`;
+        }
+        
+        // --- MATH GAME ---
+        else if (state.currentGame === 'math') {
+            let n1 = Math.floor(Math.random() * (state.level * 5)) + 1;
+            let n2 = Math.floor(Math.random() * (state.level * 5)) + 1;
+            
+            let isAddition = Math.random() > 0.5;
+
+            if (isAddition) {
+                state.correctAnswer = n1 + n2;
+                q.innerText = `${n1} + ${n2} = ?`;
+                speak(`${n1} plus ${n2}`); 
+            } else {
+                if (n2 > n1) {
+                    let temp = n1;
+                    n1 = n2;
+                    n2 = temp;
+                }
+                state.correctAnswer = n1 - n2;
+                q.innerText = `${n1} - ${n2} = ?`;
+                speak(`${n1} minus ${n2}`); 
+            }
+
+            area.innerHTML = `<input type="number" id="math-ans" style="width:100px; padding:15px; font-size:24px; border-radius:15px; border:3px solid #ddd; outline:none;"><br><button onclick="checkMath()">Check!</button>`;
+            
+            setTimeout(() => {
+                let input = document.getElementById('math-ans');
+                if(input) input.focus();
+            }, 10);
+        }
+        
+        // --- COUNTING GAME ---
+        else if (state.currentGame === 'count') {
+            let num = Math.floor(Math.random() * 9) + 1;
+            state.correctAnswer = num;
+            q.innerText = "How many candies do you see?";
+            speak("How many candies do you see?");
+            
+            let items = ""; for(let i=0; i<num; i++) items += "🍭";
+            area.innerHTML = `<div style="font-size:50px; margin:20px;">${items}</div>`;
+            for(let i=1; i<=10; i++) area.innerHTML += `<button onclick="handleResult(${i}===${num})">${i}</button>`;
+        }
+    }
+
+    function flip(i, icon) {
+        if (isProcessing) return;
+        let el = document.getElementById('c'+i);
+        if (el.style.color === 'white') return;
+
+        el.style.color = 'white'; 
+        el.style.background = 'white'; 
+        el.style.border = '3px solid var(--primary)';
+        
+        flipped.push({i, icon});
+
+        if (flipped.length === 2) {
+            isProcessing = true;
+            if (flipped[0].icon === flipped[1].icon) {
+                state.score += 10;
+                updateHUD();
+                document.getElementById('feedback').innerHTML = "✨ Match! ✨";
+                speak("Match!");
+                flipped = [];
+                isProcessing = false;
+                
+                const all = document.querySelectorAll('[id^="c"]');
+                const matched = Array.from(all).filter(card => card.style.color === 'white');
+                if (matched.length === all.length) {
+                    setTimeout(nextQuestion, 1500);
+                }
+            } else {
+                setTimeout(() => {
+                    flipped.forEach(f => {
+                        let card = document.getElementById('c'+f.i);
+                        card.style.color = 'transparent'; 
+                        card.style.background = 'var(--primary)';
+                        card.style.border = 'none';
+                    });
+                    flipped = [];
+                    isProcessing = false;
+                }, 800);
+            }
+        }
+    }
+
+    function checkMath() {
+        let val = parseInt(document.getElementById('math-ans').value);
+        if (isNaN(val)) return; 
+        handleResult(val === state.correctAnswer);
+    }
+
+    function handleAnimalResult(isCorrect) {
+        const fb = document.getElementById('feedback');
+        const area = document.getElementById('action-area');
+        
+        if (isCorrect) {
+            fb.innerHTML = "<span style='color:var(--success)'>✨ Great Job! ✨</span>";
+            state.score += 5;
+            document.getElementById('game-board').classList.add('correct-anim');
+            setTimeout(() => document.getElementById('game-board').classList.remove('correct-anim'), 500);
+            
+            area.innerHTML = `
+                <div style="margin: 20px auto; padding: 20px; background: #fff; border-radius: 20px; border: 4px dashed var(--success); max-width: 200px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+                    <div style="font-size: 80px; line-height: 1;">${state.correctAnswer.e}</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: #2d3436; margin-top: 10px;">${state.correctAnswer.n}</div>
+                </div>
+            `;
+            speak("Great job! It's a " + state.correctAnswer.n);
+            setTimeout(nextQuestion, 2500);
+        } else {
+            fb.innerHTML = "<span style='color:var(--danger)'>Oops! Try again!</span>";
+            speak("Oops! Try again!");
+            state.lives--;
+            if (state.lives <= 0) endGame();
+            else setTimeout(nextQuestion, 1500);
+        }
+        updateHUD();
+    }
+
+    function handleResult(isCorrect) {
+        const fb = document.getElementById('feedback');
+        if(isCorrect) {
+            fb.innerHTML = "<span style='color:var(--success)'>✨ Great Job! ✨</span>";
+            speak("Great job!");
+            state.score += 5;
+            document.getElementById('game-board').classList.add('correct-anim');
+            setTimeout(() => document.getElementById('game-board').classList.remove('correct-anim'), 500);
+            setTimeout(nextQuestion, 1500);
+        } else {
+            fb.innerHTML = "<span style='color:var(--danger)'>Oops! Try again!</span>";
+            speak("Oops! Try again!");
+            state.lives--;
+            if(state.lives <= 0) endGame();
+            else setTimeout(nextQuestion, 1500);
+        }
+        updateHUD();
+    }
+
+    function endGame() {
+        const music = document.getElementById('bgMusic');
+        music.pause();
+        music.currentTime = 0;
+
+        speak("Game over! Wonderful job!");
+
+        if(state.score > state.highScore) {
+            state.highScore = state.score;
+            localStorage.setItem('kidsHS', state.score);
+        }
+        alert("Wonderful! Your score: " + state.score);
+        document.getElementById('menu').classList.remove('hidden');
+        document.getElementById('game-board').classList.add('hidden');
+        updateHUD();
+    }
+
+    updateHUD();
+</script>
+</body>
+</html>
