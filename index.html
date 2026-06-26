@@ -15,6 +15,7 @@
             font-family: 'Quicksand', sans-serif;
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
             min-height: 100vh; margin: 0; display: flex; flex-direction: column; align-items: center;
+            user-select: none;
         }
 
         .game-container {
@@ -52,7 +53,7 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .correct-anim { animation: pulse 0.5s ease-in-out; }
 
-        /* --- New Fruits Layout Styles --- */
+        /* --- Fruits Layout Styles --- */
         .fruit-card {
             display: inline-flex; flex-direction: column; align-items: center;
             margin: 10px; cursor: pointer; transition: transform 0.2s;
@@ -72,6 +73,13 @@
             font-size: 1.1rem; padding: 10px 20px; border-radius: 50px; margin-bottom: 15px;
         }
         .sound-repeat-btn:active { box-shadow: 0 1px 0px #e1b12c; }
+
+        /* --- Tracing Mode Styles --- */
+        .color-container { margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; color: #006064; }
+        #colorPicker { border: none; background: transparent; width: 40px; height: 40px; cursor: pointer; vertical-align: middle; }
+        .wrap { position: relative; display: inline-block; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border-radius: 20px; background: white; padding: 10px; }
+        canvas { border: 4px dashed #00838f; background: transparent; border-radius: 15px; touch-action: none; display: block; }
+        .guide { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 240px; font-weight: bold; color: rgba(0, 0, 0, 0.07); pointer-events: none; font-family: Arial, sans-serif; }
     </style>
 </head>
 <body>
@@ -88,6 +96,8 @@
             <button onclick="startGame('animal')">🦁 Animals</button>
             <button onclick="startGame('shape')">🔷 Shapes</button>
             <button onclick="startGame('memory')">🧠 Memory</button>
+            <button onclick="startGame('trace')" style="background: #e67e22; box-shadow: 0 5px 0px #d35400;">🔤 Tracing</button>
+            <button onclick="startGame('numtrace')" style="background: #0097e6; box-shadow: 0 5px 0px #0077b6;">🔢 Number Tracing</button>
         </div>
     </div>
 
@@ -112,11 +122,21 @@
         score: 0, lives: 5, level: 1, 
         highScore: parseInt(localStorage.getItem('kidsHS')) || 0,
         currentGame: '', correctAnswer: null,
-        currentAnimalSound: '' 
+        currentAnimalSound: '',
+        tracingIndex: 0,
+        numTracingIndex: 0,
+        rawPointsCount: 0,
+        evaluationTimeout: null,
+        traceDone: false
     };
 
     let flipped = [];
     let isProcessing = false;
+    let canvasCtx = null;
+    let drawing = false;
+
+    const alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+    const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
     function updateHUD() {
         document.getElementById('score').innerText = state.score;
@@ -138,10 +158,14 @@
 
     function startGame(type) {
         state.currentGame = type;
-        state.score = 0; state.lives = 5; state.level = 1;
+        state.score = 0; state.lives = 5; state.level = 1; 
+        state.tracingIndex = 0; state.numTracingIndex = 0;
         document.getElementById('menu').classList.add('hidden');
         document.getElementById('game-board').classList.remove('hidden');
-        document.getElementById('game-title').innerText = type.toUpperCase();
+        
+        let titleDisplay = type.toUpperCase();
+        if (type === 'numtrace') titleDisplay = "NUMBER TRACING";
+        document.getElementById('game-title').innerText = titleDisplay;
         
         const music = document.getElementById('bgMusic');
         music.volume = 0.2;
@@ -157,9 +181,62 @@
         area.innerHTML = ''; document.getElementById('feedback').innerText = '';
         flipped = [];
         isProcessing = false;
+        clearTimeout(state.evaluationTimeout);
+
+        // --- ALPHABET TRACING MODE ---
+        if (state.currentGame === 'trace') {
+            state.rawPointsCount = 0;
+            state.traceDone = false;
+            let currentLetter = alphabet[state.tracingIndex];
+            
+            q.innerText = `Trace the letter!`;
+            speak("Trace the letter " + currentLetter);
+
+            area.innerHTML = `
+                <div class="color-container">
+                    <label for="colorPicker">🎨 Pick Crayon: </label> 
+                    <input type="color" id="colorPicker" value="#9c27b0">
+                    <button onclick="clearTraceCanvas()" style="padding: 5px 15px; font-size: 0.9rem; margin-left: 10px; background:#ff7675; box-shadow: 0 3px 0 #d63031;">🧹 Clear</button>
+                </div>
+                <div class="wrap">
+                    <div class="guide" id="guideLetter">${currentLetter}</div>
+                    <canvas id="traceCanvas" width="320" height="320"></canvas>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="sound-repeat-btn" onclick="speak('Trace the letter ' + alphabet[state.tracingIndex])">🔊 Hear Letter</button>
+                </div>
+            `;
+            setupTracingCanvas();
+        }
+
+        // --- NUMBER TRACING MODE ---
+        else if (state.currentGame === 'numtrace') {
+            state.rawPointsCount = 0;
+            state.traceDone = false;
+            let currentNumber = numbers[state.numTracingIndex];
+            
+            q.innerText = `Trace the number!`;
+            speak("Trace the number " + currentNumber);
+
+            area.innerHTML = `
+                <div class="color-container">
+                    <label for="colorPicker">🎨 Pick Crayon: </label> 
+                    <input type="color" id="colorPicker" value="#0097e6">
+                    <button onclick="clearTraceCanvas()" style="padding: 5px 15px; font-size: 0.9rem; margin-left: 10px; background:#ff7675; box-shadow: 0 3px 0 #d63031;">🧹 Clear</button>
+                </div>
+                <div class="wrap">
+                    <div class="guide" id="guideLetter">${currentNumber}</div>
+                    <canvas id="traceCanvas" width="320" height="320"></canvas>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="sound-repeat-btn" onclick="speak('Trace the number ' + numbers[state.numTracingIndex])">🔊 Hear Number</button>
+                </div>
+            `;
+            setupTracingCanvas();
+        }
 
         // --- ANIMAL GAME ---
-        if (state.currentGame === 'animal') {
+        else if (state.currentGame === 'animal') {
             const animals = [
                 {n:'Lion', s:'Roar', e:'🦁'}, {n:'Chicken', s:'Bawk-bawk', e:'🐔'}, 
                 {n:'Monkey', s:'Ooh ooh aah aah', e:'🐒'}, {n:'Sheep', s:'Baaa', e:'🐑'}, 
@@ -167,7 +244,7 @@
                 {n:'Bird', s:'Tweet tweet', e:'🐦'}, {n:'Cat', s:'Meow', e:'🐱'},
                 {n:'Duck', s:'Quack', e:'🦆'}, {n:'Pig', s:'Oink', e:'🐷'},
                 {n:'Dog', s:'Woof', e:'🐶'}, {n:'Goat', s:'Maaa', e:'🐐'},
-                
+                {n:'Turkey', s:'Gobble gobble', e:'🦃'}
             ];
             let pick = animals[Math.floor(Math.random() * animals.length)];
             state.correctAnswer = pick;
@@ -290,6 +367,92 @@
         }
     }
 
+    /* --- Universal Canvas Event Engine (Alphabet & Numbers) --- */
+    function setupTracingCanvas() {
+        const c = document.getElementById("traceCanvas");
+        if (!c) return;
+        canvasCtx = c.getContext("2d");
+        drawing = false;
+
+        const getMousePos = (e) => ({ x: e.offsetX, y: e.offsetY });
+        const getTouchPos = (e) => {
+            const rect = c.getBoundingClientRect();
+            return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+        };
+
+        const startDrawing = (coords) => {
+            if (state.traceDone) return;
+            clearTimeout(state.evaluationTimeout);
+            drawing = true;
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(coords.x, coords.y);
+        };
+
+        const draw = (coords) => {
+            if (!drawing || state.traceDone) return;
+            canvasCtx.strokeStyle = document.getElementById("colorPicker").value;
+            canvasCtx.lineWidth = 14; 
+            canvasCtx.lineCap = "round";
+            canvasCtx.lineJoin = "round";
+            canvasCtx.lineTo(coords.x, coords.y);
+            canvasCtx.stroke();
+            state.rawPointsCount++;
+        };
+
+        const stopDrawing = () => {
+            if (!drawing) return;
+            drawing = false;
+            if (state.rawPointsCount > 0 && !state.traceDone) {
+                state.evaluationTimeout = setTimeout(checkTraceEvaluation, 1200);
+            }
+        };
+
+        c.addEventListener("mousedown", (e) => startDrawing(getMousePos(e)));
+        c.addEventListener("mousemove", (e) => draw(getMousePos(e)));
+        window.addEventListener("mouseup", stopDrawing);
+
+        c.addEventListener("touchstart", (e) => { e.preventDefault(); startDrawing(getTouchPos(e)); }, { passive: false });
+        c.addEventListener("touchmove", (e) => { e.preventDefault(); draw(getTouchPos(e)); }, { passive: false });
+        window.addEventListener("touchend", stopDrawing);
+    }
+
+    function clearTraceCanvas() {
+        clearTimeout(state.evaluationTimeout);
+        const c = document.getElementById("traceCanvas");
+        if(canvasCtx && c) canvasCtx.clearRect(0, 0, c.width, c.height);
+        state.rawPointsCount = 0;
+        state.traceDone = false;
+        document.getElementById("feedback").innerText = "";
+    }
+
+    function checkTraceEvaluation() {
+        if (state.traceDone || state.rawPointsCount === 0) return;
+
+        if (state.rawPointsCount < 20) {
+            document.getElementById("feedback").innerHTML = "<span style='color:var(--warning)'>Keep tracing to finish!</span>";
+            speak("Keep tracing to finish!");
+            return;
+        }
+
+        document.getElementById("feedback").innerHTML = "<span style='color:var(--success)'>✨ Super Job! +5 Points ✨</span>";
+        state.score += 5;
+        state.traceDone = true;
+        updateHUD();
+
+        document.getElementById('game-board').classList.add('correct-anim');
+        setTimeout(() => document.getElementById('game-board').classList.remove('correct-anim'), 500);
+
+        if (state.currentGame === 'trace') {
+            speak("Super job! You traced the letter " + alphabet[state.tracingIndex]);
+            state.tracingIndex = (state.tracingIndex + 1) % alphabet.length;
+        } else {
+            speak("Super job! You traced the number " + numbers[state.numTracingIndex]);
+            state.numTracingIndex = (state.numTracingIndex + 1) % numbers.length;
+        }
+        
+        setTimeout(nextQuestion, 2000);
+    }
+
     function flip(i, icon) {
         if (isProcessing) return;
         let el = document.getElementById('c'+i);
@@ -385,6 +548,7 @@
     }
 
     function endGame() {
+        clearTimeout(state.evaluationTimeout);
         const music = document.getElementById('bgMusic');
         music.pause();
         music.currentTime = 0;
