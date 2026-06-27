@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kids Academy Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght=400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6C5CE7; --success: #00B894; --danger: #D63031;
@@ -22,6 +22,7 @@
             background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 30px;
             width: 90%; max-width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             margin: 20px; text-align: center; border: 5px solid white;
+            box-sizing: border-box;
         }
 
         .hidden { display: none; }
@@ -45,8 +46,12 @@
         .s-rectangle { width: 100px; height: 60px; background: #a29bfe; }
         .s-oval { width: 100px; height: 60px; background: #fd79a8; border-radius: 50px / 30px; }
         .s-triangle { width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 70px solid #55efc4; }
-        .s-diamond { width: 60px; height: 60px; background: #ffeaa7; transform: rotate(45deg); }
+        .s-diamond { width: 70px; height: 70px; background: #ffeaa7; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
         .s-pentagon { width: 70px; height: 70px; background: #fab1a0; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
+        .s-star { width: 75px; height: 75px; background: #fdcb6e; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        .s-hexagon { width: 70px; height: 70px; background: #00cec9; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+        .s-octagon { width: 70px; height: 70px; background: #e84393; clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%); }
+        .s-cross { width: 70px; height: 70px; background: #ff7675; clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%); }
 
         .animal-btn { font-size: 50px !important; padding: 10px !important; width: 100px; height: 100px; }
 
@@ -80,6 +85,17 @@
         .wrap { position: relative; display: inline-block; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border-radius: 20px; background: white; padding: 10px; }
         canvas { border: 4px dashed #00838f; background: transparent; border-radius: 15px; touch-action: none; display: block; }
         .guide { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 240px; font-weight: bold; color: rgba(0, 0, 0, 0.07); pointer-events: none; font-family: Arial, sans-serif; }
+
+        /* --- Listen & Read Custom Styles --- */
+        .phrase-board { background-color: #f1f5f9; padding: 20px; border-radius: 24px; border: 3px dashed #cbd5e1; margin: 15px 0; }
+        .phrase-container { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 5px; }
+        .word { font-size: 2.3rem; font-weight: bold; color: #0f172a; cursor: pointer; padding: 2px 8px; border-radius: 12px; transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .word:hover { background-color: #e0e7ff; color: var(--primary); transform: scale(1.15); }
+        .hint-text { font-size: 0.95rem; color: #64748b; margin: 8px 0 0 0; font-weight: bold; }
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+        .option-card { background: #fff; border: 3px solid #e2e8f0; border-radius: 24px; padding: 15px 5px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .option-card:hover { border-color: var(--primary); background: #e0e7ff; transform: translateY(-6px); box-shadow: 0 10px 15px rgba(79, 70, 229, 0.1); }
+        .option-card .emoji { font-size: 3.8rem; display: block; }
     </style>
 </head>
 <body>
@@ -96,6 +112,8 @@
             <button onclick="startGame('animal')">🦁 Animals</button>
             <button onclick="startGame('shape')">🔷 Shapes</button>
             <button onclick="startGame('memory')">🧠 Memory</button>
+            <button onclick="startGame('read')" style="background: #10b981; box-shadow: 0 5px 0px #059669;">📚 Listen &amp; Read</button>
+            <button onclick="startGame('compare')" style="background: #0369a1; box-shadow: 0 5px 0px #0284c7;">🧮 Comparisons</button>
             <button onclick="startGame('alphabet')" style="background: #e67e22; box-shadow: 0 5px 0px #d35400;">🔤 Alphabet Tracing</button>
             <button onclick="startGame('numtrace')" style="background: #0097e6; box-shadow: 0 5px 0px #0077b6;">🔢 Number Tracing</button>
         </div>
@@ -107,7 +125,7 @@
             <span id="game-title">GAME</span>
             <span>⭐ <span id="score">0</span></span>
         </div>
-        <h2 id="question" style="color: #2d3436; min-height: 60px;">Question?</h2>
+        <h2 id="question" style="color: #2d3436; min-height: 60px; margin: 10px 0;">Question?</h2>
         <div id="action-area"></div>
         <div id="feedback" style="height: 40px; margin: 15px; font-weight: bold; font-size: 1.5rem;"></div>
         <button style="background:#b2bec3; box-shadow:0 5px 0 #636e72" onclick="endGame()">Stop Playing</button>
@@ -123,6 +141,8 @@
         highScore: parseInt(localStorage.getItem('kidsHS')) || 0,
         currentGame: '', correctAnswer: null,
         currentAnimalSound: '',
+        currentPhrase: '',
+        num1: 0, num2: 0,
         tracingIndex: 0,
         numTracingIndex: 0,
         rawPointsCount: 0,
@@ -137,6 +157,19 @@
 
     const alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
     const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    
+    const readGameData = [
+        { phrase: "Big red apple", emoji: "🍎", distractors: ["🍌", "🚗", "🐶"] },
+        { phrase: "Run fast", emoji: "🏃", distractors: ["🛌", "🍔", "🧸"] },
+        { phrase: "A blue car", emoji: "🚗", distractors: ["✈️", "🐱", "🍎"] },
+        { phrase: "Happy cat", emoji: "🐱", distractors: ["🐸", "🍕", "⏰"] },
+        { phrase: "One green tree", emoji: "🌳", distractors: ["🎈", "🐟", "🍦"] },
+        { phrase: "Yellow sun", emoji: "☀️", distractors: ["🌙", "🌧️", "⛵"] },
+        { phrase: "Swim in water", emoji: "🏊", distractors: ["🚲", "😴", "🍕"] },
+        { phrase: "Cute little dog", emoji: "🐶", distractors: ["🦁", "🚜", "🍩"] },
+        { phrase: "Fly a kite", emoji: "🪁", distractors: ["🚗", "🎸", "🧁"] },
+        { phrase: "Sweet ice cream", emoji: "🍦", distractors: ["🍿", "🍉", "👠"] }
+    ];
 
     function updateHUD() {
         document.getElementById('score').innerText = state.score;
@@ -146,17 +179,21 @@
         document.getElementById('menu-stars').innerText = s > 100 ? "👑⭐⭐⭐⭐⭐" : s > 70 ? "⭐⭐⭐⭐⭐" : s > 40 ? "⭐⭐⭐⭐" : s > 20 ? "⭐⭐⭐" : "⭐";
     }
 
-    function speak(text) {
+    // Fixed Engine: Added cancelPrevious configuration parameter to protect feedback audio cues
+    function speak(text, rate = 0.9, cancelPrevious = true) {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); 
+            if (cancelPrevious) {
+                window.speechSynthesis.cancel(); 
+            }
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
+            utterance.rate = rate;
             utterance.pitch = 1.2;
             window.speechSynthesis.speak(utterance);
         }
     }
 
     function startGame(type) {
+        window.speechSynthesis.cancel(); // Completely clean memory queue before beginning
         state.currentGame = type;
         state.score = 0; state.lives = 5; state.level = 1; 
         state.tracingIndex = 0; state.numTracingIndex = 0;
@@ -165,6 +202,8 @@
         
         let titleDisplay = type.toUpperCase();
         if (type === 'numtrace') titleDisplay = "NUMBER TRACING";
+        if (type === 'read') titleDisplay = "LISTEN & READ";
+        if (type === 'compare') titleDisplay = "NUMBER COMPARISON";
         document.getElementById('game-title').innerText = titleDisplay;
         
         const music = document.getElementById('bgMusic');
@@ -183,14 +222,82 @@
         isProcessing = false;
         clearTimeout(state.evaluationTimeout);
 
+        // --- NUMBER COMPARISON MODE ---
+        if (state.currentGame === 'compare') {
+            state.num1 = Math.floor(Math.random() * 20) + 1;
+            state.num2 = Math.floor(Math.random() * 20) + 1;
+
+            if (state.num1 < state.num2) state.correctAnswer = '<';
+            else if (state.num1 > state.num2) state.correctAnswer = '>';
+            else state.correctAnswer = '=';
+
+            q.innerText = "Choose the correct sign wrapper!";
+            // Changed: cancelPrevious set to false so it won't interrupt feedback
+            setTimeout(() => speak(`${state.num1} compared to ${state.num2}. Choose less than, equal, or greater than.`, 0.9, false), 300);
+
+            area.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 3.3rem; font-weight: bold; margin: 15px 0;">
+                    <div style="background: #f1f5f9; padding: 5px 20px; border-radius: 15px; min-width: 65px; color: #1e293b;">${state.num1}</div>
+                    <div id="compare-sign" style="color: #94a3b8; width: 50px;">?</div>
+                    <div style="background: #f1f5f9; padding: 5px 20px; border-radius: 15px; min-width: 65px; color: #1e293b;">${state.num2}</div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 12px; margin-top: 15px;">
+                    <button onclick="submitComparison('<')" style="background: #ec4899; box-shadow: 0 5px 0 #db2777; font-size: 2.2rem; padding: 5px 25px;">&lt;</button>
+                    <button onclick="submitComparison('=')" style="background: #10b981; box-shadow: 0 5px 0 #059669; font-size: 2.2rem; padding: 5px 25px;">=</button>
+                    <button onclick="submitComparison('>')" style="background: #f59e0b; box-shadow: 0 5px 0 #d97706; font-size: 2.2rem; padding: 5px 25px;">&gt;</button>
+                </div>
+            `;
+        }
+
+        // --- LISTEN & READ MODE ---
+        else if (state.currentGame === 'read') {
+            let pick = readGameData[Math.floor(Math.random() * readGameData.length)];
+            state.correctAnswer = pick.emoji;
+            state.currentPhrase = pick.phrase;
+
+            q.innerText = "Find the picture that matches the phrase!";
+            // Changed: cancelPrevious set to false
+            setTimeout(() => speak(pick.phrase, 0.75, false), 300);
+
+            let wordsHTML = '';
+            pick.phrase.split(" ").forEach(word => {
+                let cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+                wordsHTML += `<span class="word" onclick="speak('${cleanWord}', 0.55, true)">${word}</span>`;
+            });
+
+            let choices = [pick.emoji, ...pick.distractors.slice(0, 2)];
+            choices.sort(() => Math.random() - 0.5);
+
+            let cardsHTML = '';
+            choices.forEach(choice => {
+                cardsHTML += `
+                    <div class="option-card" onclick="handleResult('${choice}' === '${pick.emoji}')">
+                        <span class="emoji">${choice}</span>
+                    </div>
+                `;
+            });
+
+            area.innerHTML = `
+                <div class="phrase-board">
+                    <div class="phrase-container">
+                        <button class="sound-repeat-btn" style="margin-bottom:0;" onclick="speak(state.currentPhrase, 0.75, true)">🔊</button>
+                        <div style="display: inline-flex; gap: 10px; flex-wrap: wrap; justify-content: center;">${wordsHTML}</div>
+                    </div>
+                    <p class="hint-text">👉 Tap words to hear their exact sounds!</p>
+                </div>
+                <div class="options-grid">${cardsHTML}</div>
+            `;
+        }
+
         // --- ALPHABET TRACING MODE ---
-        if (state.currentGame === 'trace') {
+        else if (state.currentGame === 'alphabet') {
             state.rawPointsCount = 0;
             state.traceDone = false;
             let currentLetter = alphabet[state.tracingIndex];
             
             q.innerText = `Trace the letter!`;
-            speak("Trace the letter " + currentLetter);
+            // Changed: cancelPrevious set to false
+            speak("Trace the letter " + currentLetter, 0.9, false);
 
             area.innerHTML = `
                 <div class="color-container">
@@ -203,7 +310,7 @@
                     <canvas id="traceCanvas" width="320" height="320"></canvas>
                 </div>
                 <div style="margin-top: 10px;">
-                    <button class="sound-repeat-btn" onclick="speak('Trace the letter ' + alphabet[state.tracingIndex])">🔊 Hear Letter</button>
+                    <button class="sound-repeat-btn" onclick="speak('Trace the letter ' + alphabet[state.tracingIndex], 0.9, true)">🔊 Hear Letter</button>
                 </div>
             `;
             setupTracingCanvas();
@@ -216,7 +323,8 @@
             let currentNumber = numbers[state.numTracingIndex];
             
             q.innerText = `Trace the number!`;
-            speak("Trace the number " + currentNumber);
+            // Changed: cancelPrevious set to false
+            speak("Trace the number " + currentNumber, 0.9, false);
 
             area.innerHTML = `
                 <div class="color-container">
@@ -229,7 +337,7 @@
                     <canvas id="traceCanvas" width="320" height="320"></canvas>
                 </div>
                 <div style="margin-top: 10px;">
-                    <button class="sound-repeat-btn" onclick="speak('Trace the number ' + numbers[state.numTracingIndex])">🔊 Hear Number</button>
+                    <button class="sound-repeat-btn" onclick="speak('Trace the number ' + numbers[state.numTracingIndex], 0.9, true)">🔊 Hear Number</button>
                 </div>
             `;
             setupTracingCanvas();
@@ -251,9 +359,10 @@
             state.currentAnimalSound = pick.s;
             
             q.innerText = `Which animal makes this sound?`;
-            speak("Which animal makes this sound?" + pick.s);
+            // Changed: cancelPrevious set to false
+            speak("Which animal makes this sound? " + pick.s, 0.9, false);
             
-            area.innerHTML += `<button class="sound-repeat-btn" onclick="speak(state.currentAnimalSound)">🔊 Hear Sound Again</button><br>`;
+            area.innerHTML += `<button class="sound-repeat-btn" onclick="speak(state.currentAnimalSound, 0.9, true)">🔊 Hear Sound Again</button><br>`;
             
             let choices = [...animals].sort(() => 0.5 - Math.random()).slice(0, 4);
             if (!choices.find(a => a.n === pick.n)) choices[0] = pick;
@@ -280,7 +389,8 @@
             let pick = fruits[Math.floor(Math.random()*fruits.length)];
             state.correctAnswer = pick.n;
             q.innerHTML = `Find the <span style="color:${pick.v}">${pick.c.toUpperCase()}</span> fruit!`;
-            speak(`Find the ${pick.c} fruit!`);
+            // Changed: cancelPrevious set to false
+            speak(`Find the ${pick.c} fruit!`, 0.9, false);
             
             let choices = [...fruits].sort(() => 0.5 - Math.random()).slice(0,4);
             if (!choices.find(f => f.n === pick.n)) choices[0] = pick;
@@ -297,7 +407,8 @@
         // --- MEMORY GAME ---
         else if (state.currentGame === 'memory') {
             q.innerText = "Match the Pairs!";
-            speak("Match the pairs!");
+            // Changed: cancelPrevious set to false
+            speak("Match the pairs!", 0.9, false);
             const pool = ['🐶','🍎','⭐','🤖','🐸','🎈','🍭','🦁'];
             const selectedIcons = pool.sort(() => 0.5 - Math.random()).slice(0, 4);
             const icons = [...selectedIcons, ...selectedIcons].sort(() => 0.5 - Math.random());
@@ -311,11 +422,19 @@
 
         // --- SHAPE GAME ---
         else if (state.currentGame === 'shape') {
-            const shapes = [{n:'Circle', c:'s-circle'}, {n:'Square', c:'s-square'}, {n:'Triangle', c:'s-triangle'}, {n:'Diamond', c:'s-diamond'}, {n:'Rectangle', c:'s-rectangle'}, {n:'Oval', c:'s-oval'}, {n:'Pentagon', c:'s-pentagon'}];
+            const shapes = [
+                {n:'Circle', c:'s-circle'}, {n:'Square', c:'s-square'}, 
+                {n:'Triangle', c:'s-triangle'}, {n:'Diamond', c:'s-diamond'}, 
+                {n:'Rectangle', c:'s-rectangle'}, {n:'Oval', c:'s-oval'}, 
+                {n:'Pentagon', c:'s-pentagon'}, {n:'Star', c:'s-star'},
+                {n:'Hexagon', c:'s-hexagon'}, {n:'Octagon', c:'s-octagon'},
+                {n:'Cross', c:'s-cross'}
+            ];
             let pick = shapes[Math.floor(Math.random() * shapes.length)];
             state.correctAnswer = pick.n;
             q.innerText = `Can you find the ${pick.n.toUpperCase()}?`;
-            speak(`Can you find the ${pick.n}?`);
+            // Changed: cancelPrevious set to false
+            speak(`Can you find the ${pick.n}?`, 0.9, false);
             
             let choices = [...shapes].sort(() => 0.5 - Math.random()).slice(0, 4);
             if (!choices.find(s => s.n === pick.n)) choices[0] = pick;
@@ -334,7 +453,8 @@
             if (isAddition) {
                 state.correctAnswer = n1 + n2;
                 q.innerText = `${n1} + ${n2} = ?`;
-                speak(`${n1} plus ${n2}`); 
+                // Changed: cancelPrevious set to false
+                speak(`${n1} plus ${n2}`, 0.9, false); 
             } else {
                 if (n2 > n1) {
                     let temp = n1;
@@ -343,7 +463,8 @@
                 }
                 state.correctAnswer = n1 - n2;
                 q.innerText = `${n1} - ${n2} = ?`;
-                speak(`${n1} minus ${n2}`); 
+                // Changed: cancelPrevious set to false
+                speak(`${n1} minus ${n2}`, 0.9, false); 
             }
 
             area.innerHTML = `<input type="number" id="math-ans" style="width:100px; padding:15px; font-size:24px; border-radius:15px; border:3px solid #ddd; outline:none;"><br><button onclick="checkMath()">Check!</button>`;
@@ -359,12 +480,47 @@
             let num = Math.floor(Math.random() * 9) + 1;
             state.correctAnswer = num;
             q.innerText = "How many candies do you see?";
-            speak("How many candies do you see?");
+            // Changed: cancelPrevious set to false
+            speak("How many candies do you see?", 0.9, false);
             
             let items = ""; for(let i=0; i<num; i++) items += "🍭";
             area.innerHTML = `<div style="font-size:50px; margin:20px;">${items}</div>`;
             for(let i=1; i<=10; i++) area.innerHTML += `<button onclick="handleResult(${i}===${num})">${i}</button>`;
         }
+    }
+
+    /* --- Comparison Verification Handler --- */
+    function submitComparison(choice) {
+        const signEl = document.getElementById('compare-sign');
+        if (signEl) {
+            signEl.innerText = state.correctAnswer;
+            signEl.style.color = 'var(--primary)';
+        }
+        
+        let isCorrect = (choice === state.correctAnswer);
+        let words = (state.correctAnswer === '<') ? 'is less than' : (state.correctAnswer === '>') ? 'is greater than' : 'is equal to';
+        
+        // Keeps cancelPrevious = true here so it instantly drops old reading lines to deliver immediate right/wrong response
+        if (isCorrect) {
+            speak(`Correct! ${state.num1} ${words} ${state.num2}.`, 0.9, true);
+        } else {
+            speak(`Not quite. ${state.num1} ${words} ${state.num2}.`, 0.9, true);
+        }
+        
+        const fb = document.getElementById('feedback');
+        if (isCorrect) {
+            fb.innerHTML = "<span style='color:var(--success)'>✨ Great Job! ✨</span>";
+            state.score += 5;
+            document.getElementById('game-board').classList.add('correct-anim');
+            setTimeout(() => document.getElementById('game-board').classList.remove('correct-anim'), 500);
+            setTimeout(nextQuestion, 2200); 
+        } else {
+            fb.innerHTML = "<span style='color:var(--danger)'>Oops! Try again!</span>";
+            state.lives--;
+            if (state.lives <= 0) endGame();
+            else setTimeout(nextQuestion, 2200);
+        }
+        updateHUD();
     }
 
     /* --- Universal Canvas Event Engine (Alphabet & Numbers) --- */
@@ -430,7 +586,7 @@
 
         if (state.rawPointsCount < 20) {
             document.getElementById("feedback").innerHTML = "<span style='color:var(--warning)'>Keep tracing to finish!</span>";
-            speak("Keep tracing to finish!");
+            speak("Keep tracing to finish!", 0.9, true);
             return;
         }
 
@@ -442,11 +598,11 @@
         document.getElementById('game-board').classList.add('correct-anim');
         setTimeout(() => document.getElementById('game-board').classList.remove('correct-anim'), 500);
 
-        if (state.currentGame === 'trace') {
-            speak("Super job! You traced the letter " + alphabet[state.tracingIndex]);
+        if (state.currentGame === 'alphabet') {
+            speak("Super job! You traced the letter " + alphabet[state.tracingIndex], 0.9, true);
             state.tracingIndex = (state.tracingIndex + 1) % alphabet.length;
         } else {
-            speak("Super job! You traced the number " + numbers[state.numTracingIndex]);
+            speak("Super job! You traced the number " + numbers[state.numTracingIndex], 0.9, true);
             state.numTracingIndex = (state.numTracingIndex + 1) % numbers.length;
         }
         
@@ -470,7 +626,7 @@
                 state.score += 10;
                 updateHUD();
                 document.getElementById('feedback').innerHTML = "✨ Match! ✨";
-                speak("Match!");
+                speak("Match!", 0.9, true);
                 flipped = [];
                 isProcessing = false;
                 
@@ -516,11 +672,11 @@
                     <div style="font-size: 1.8rem; font-weight: bold; color: #2d3436; margin-top: 10px;">${state.correctAnswer.n}</div>
                 </div>
             `;
-            speak("Great job! It's a " + state.correctAnswer.n);
+            speak("Great job! It's a " + state.correctAnswer.n, 0.9, true);
             setTimeout(nextQuestion, 2500);
         } else {
             fb.innerHTML = "<span style='color:var(--danger)'>Oops! Try again!</span>";
-            speak("Oops! Try again!");
+            speak("Oops! Try again!", 0.9, true);
             state.lives--;
             if (state.lives <= 0) endGame();
             else setTimeout(nextQuestion, 1500);
@@ -532,14 +688,14 @@
         const fb = document.getElementById('feedback');
         if(isCorrect) {
             fb.innerHTML = "<span style='color:var(--success)'>✨ Great Job! ✨</span>";
-            speak("Great job!");
+            speak("Great job!", 0.9, true);
             state.score += 5;
             document.getElementById('game-board').classList.add('correct-anim');
             setTimeout(() => document.getElementById('game-board').classList.remove('correct-anim'), 500);
             setTimeout(nextQuestion, 1500);
         } else {
             fb.innerHTML = "<span style='color:var(--danger)'>Oops! Try again!</span>";
-            speak("Oops! Try again!");
+            speak("Oops! Try again!", 0.9, true);
             state.lives--;
             if(state.lives <= 0) endGame();
             else setTimeout(nextQuestion, 1500);
@@ -553,7 +709,7 @@
         music.pause();
         music.currentTime = 0;
 
-        speak("Game over! Wonderful job!");
+        speak("Game over! Wonderful job!", 0.9, true);
 
         if(state.score > state.highScore) {
             state.highScore = state.score;
