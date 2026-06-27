@@ -443,13 +443,29 @@
     const readGameData = [
         { phrase: "Big red apple", emoji: "🍎", distractors: ["🍌", "🚗", "🐶"] },
         { phrase: "Run fast", emoji: "🏃", distractors: ["🛌", "🍔", "🧸"] },
-        { phrase: "A blue car", emoji: "🚗", distractors: ["✈️", "🐱", "🍎"] },
+        { phrase: "A red  car", emoji: "🚗", distractors: ["✈️", "🐱", "🍎"] },
         { phrase: "Happy cat", emoji: "🐱", distractors: ["🐸", "🍕", "⏰"] },
         { phrase: "One green tree", emoji: "🌳", distractors: ["🎈", "🐟", "🍦"] },
         { phrase: "Yellow sun", emoji: "☀️", distractors: ["🌙", "🌧️", "⛵"] },
         { phrase: "Swim in water", emoji: "🏊", distractors: ["🚲", "😴", "🍕"] },
         { phrase: "Cute little dog", emoji: "🐶", distractors: ["🦁", "🚜", "🍩"] },
         { phrase: "Fly a kite", emoji: "🪁", distractors: ["🚗", "🎸", "🧁"] },
+        { phrase: "Blue little bird", emoji: "🐦", distractors: ["🐶", "🐱", "🐠"] },
+{ phrase: "Eat a banana", emoji: "🍌", distractors: ["🍎", "🍇", "🍊"] },
+{ phrase: "A green frog", emoji: "🐸", distractors: ["🐢", "🐍", "🦎"] },
+{ phrase: "Read a book", emoji: "📚", distractors: ["✏️", "🖍️", "🎒"] },
+{ phrase: "Drink some milk", emoji: "🥛", distractors: ["🧃", "☕", "🍵"] },
+{ phrase: "A yellow duck", emoji: "🦆", distractors: ["🐔", "🐧", "🦅"] },
+{ phrase: "Play the guitar", emoji: "🎸", distractors: ["🥁", "🎹", "🎺"] },
+{ phrase: "A happy fish", emoji: "🐟", distractors: ["🐙", "🦀", "🐬"] },
+{ phrase: "Open the door", emoji: "🚪", distractors: ["🪟", "🛏️", "🪑"] },
+{ phrase: "Ride a bicycle", emoji: "🚲", distractors: ["🚗", "🚌", "🏍️"] },
+{ phrase: "See the rainbow", emoji: "🌈", distractors: ["☁️", "⭐", "🌙"] },
+{ phrase: "Pick a flower", emoji: "🌸", distractors: ["🌳", "🍀", "🌵"] },
+{ phrase: "Eat some pizza", emoji: "🍕", distractors: ["🍔", "🌭", "🍟"] },
+{ phrase: "A cute rabbit", emoji: "🐰", distractors: ["🐭", "🐹", "🐱"] },
+{ phrase: "A shining star", emoji: "⭐", distractors: ["🌙", "☀️", "☁️"] },
+        { phrase: "A small cow", emoji: "🐄", distractors: ["🐖", "🐑", "🐐"] },
         { phrase: "Sweet ice cream", emoji: "🍦", distractors: ["🍿", "🍉", "👠"] }
     ];
 
@@ -623,13 +639,13 @@
         // --- ANIMAL GAME ---
         else if (state.currentGame === 'animal') {
             const animals = [
-                {n:'Lion', s:'Roar', e:'🦁'}, {n:'Chicken', s:'Bawk-bawk', e:'🐔'}, 
-                {n:'Monkey', s:'Ooh ooh aah aah', e:'🐒'}, {n:'Sheep', s:'Baaa', e:'🐑'}, 
-                {n:'Frog', s:'Ribbit', e:'🐸'}, {n:'Bee', s:'Buzzzz', e:'🐝'},
-                {n:'Bird', s:'Tweet tweet', e:'🐦'}, {n:'Cat', s:'Meow', e:'🐱'},
-                {n:'Duck', s:'Quack', e:'🦆'}, {n:'Pig', s:'Oink', e:'🐷'},
-                {n:'Dog', s:'Woof', e:'🐶'}, {n:'Goat', s:'Maaa', e:'🐐'},
-                {n:'Turkey', s:'Gobble gobble', e:'🦃'}
+                {n:'Lion', s:'Roar roar', e:'🦁'}, {n:'Chicken', s:'Bawk-bawk', e:'🐔'}, 
+                {n:'Monkey', s:'Ooh ooh aah aah', e:'🐒'}, {n:'Sheep', s:'Baaa baaaa', e:'🐑'}, 
+                {n:'Frog', s:'Ribbit ribbit', e:'🐸'}, {n:'Bee', s:'Buzzzz buzz', e:'🐝'},
+                {n:'Bird', s:'Tweet tweet', e:'🐦'}, {n:'Cat', s:'Meow meow', e:'🐱'},
+                {n:'Duck', s:'Quack quack', e:'🦆'}, {n:'Pig', s:'Oink oink', e:'🐷'},
+                {n:'Dog', s:'Woof', e:'🐶'}, {n:'Goat', s:'Meee meee', e:'🐐'},{n:'Cow', s:'Mooo mooo', e:'🐄'},
+                {n:'Snake', s:'Hisss hiss', e:'🐍'}
             ];
             let pick = animals[Math.floor(Math.random() * animals.length)];
             state.correctAnswer = pick;
