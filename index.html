@@ -639,13 +639,13 @@
         // --- ANIMAL GAME ---
         else if (state.currentGame === 'animal') {
             const animals = [
-                {n:'Lion', s:'Roar roar', e:'🦁'}, {n:'Chicken', s:'Bawk-bawk', e:'🐔'}, 
-                {n:'Monkey', s:'Ooh ooh aah aah', e:'🐒'}, {n:'Sheep', s:'Baaa ', e:'🐑'}, 
-                {n:'Frog', s:'Ribbit ribbit', e:'🐸'}, {n:'Bee', s:'Buzzzz ', e:'🐝'},
+                {n:'Lion', s:'Roar', e:'🦁'}, {n:'Chicken', s:'Bawk-bawk', e:'🐔'}, 
+                {n:'Monkey', s:'Ooh ooh aah aah', e:'🐒'}, {n:'Sheep', s:'Baaa', e:'🐑'}, 
+                {n:'Frog', s:'Ribbit ribbit', e:'🐸'}, {n:'Bee', s:'Buzzzz', e:'🐝'},
                 {n:'Bird', s:'Tweet tweet', e:'🐦'}, {n:'Cat', s:'Meow', e:'🐱'},
-                {n:'Duck', s:'Quack ', e:'🦆'}, {n:'Pig', s:'Oink ', e:'🐷'},
+                {n:'Duck', s:'Quack', e:'🦆'}, {n:'Pig', s:'Oink', e:'🐷'},
                 {n:'Dog', s:'Woof', e:'🐶'}, {n:'Goat', s:'Meee', e:'🐐'},{n:'Cow', s:' mooo', e:'🐄'},
-                {n:'Snake', s:'Ssss ', e:'🐍'}
+                {n:'Snake', s:'Ssss', e:'🐍'}
             ];
             let pick = animals[Math.floor(Math.random() * animals.length)];
             state.correctAnswer = pick;
